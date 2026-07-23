@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPG - Mundo de Aventuras</title>
+    
+    <!-- CSS Modularizado -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="header-nav.css">
+    <link rel="stylesheet" href="inventory.css">
+    <link rel="stylesheet" href="character.css">
 </head>
 <body>
     <div id="game-ui">
@@ -14,11 +19,11 @@
                 <!-- Perfil (Canto Superior Esquerdo) -->
                 <div class="profile-section" id="btn-profile">
                     <div class="avatar-wrapper">
-                        <!-- O avatar usa a classe da borda (ex: border-gold, border-iron) e a imagem da raça -->
+                        <!-- O avatar usa a classe da borda (ex: border-gold) e a imagem da raça -->
                         <div class="avatar-border border-gold">
                             <img src="Humano.png" alt="Avatar" class="avatar-img">
                         </div>
-                        <div class="level-badge">10</div>
+                        <div class="level-badge" id="ui-level">10</div>
                     </div>
                 </div>
 
@@ -33,7 +38,7 @@
                             <button id="btn-buffs" class="gold-btn">
                                 <span>✨ Buffs</span> <div class="buff-count">3</div>
                             </button>
-                            <!-- Botão Menu (Alinhado à direita para balancear o layout AAA) -->
+                            <!-- Botão Menu -->
                             <button id="btn-menu" class="gold-btn outline">
                                 <span>≡ Menu</span>
                             </button>
@@ -83,20 +88,153 @@
                 <div class="currency"><span class="curr-icon copper">🟤</span> 12.4K</div>
                 <div class="currency"><span class="curr-icon bronze">🟠</span> 4.1K</div>
                 <div class="currency"><span class="curr-icon silver">⚪</span> 890</div>
-                <div class="currency"><span class="curr-icon gold">🟡</span> 1.658</div>
-                <div class="currency"><span class="curr-icon diamond">💎</span> 12</div>
+                <div class="currency"><span class="curr-icon gold">🟡</span> <span id="ui-gold">1658</span></div>
+                <div class="currency"><span class="curr-icon diamond">💎</span> <span id="ui-diamond">12</span></div>
             </div>
         </header>
 
         <!-- CENTRO ROLÁVEL (Conteúdo Principal) -->
         <main id="main-content">
-            <!-- Espaço reservado para a cidade, eventos e ações que faremos a seguir -->
-            <div class="placeholder-content">
-                <div class="banner-cidade">
-                    <h3>Bem-vindo ao Mundo</h3>
-                    <p>Selecione uma ação abaixo ou explore os menus.</p>
+            
+            <!-- TELA: MUNDO -->
+            <div id="view-mundo" class="view-section active">
+                <div class="placeholder-content">
+                    <div class="banner-cidade">
+                        <h3>Bem-vindo ao Mundo</h3>
+                        <p>Selecione uma ação abaixo ou explore os menus.</p>
+                    </div>
                 </div>
             </div>
+
+            <!-- TELA: MOCHILA (Inventários) -->
+            <div id="view-mochila" class="view-section hidden">
+                
+                <div class="view-header">
+                    <h2>🎒 INVENTÁRIO</h2>
+                </div>
+
+                <!-- Inventário: Equipamentos -->
+                <div class="inv-category">
+                    <div class="inv-header">
+                        <h3>Equipamentos <span id="count-equipamentos" class="slot-count">0/70</span></h3>
+                        <button class="expand-btn" data-type="equipamentos">+5 (Ouro)</button>
+                    </div>
+                    <div class="inv-filters">
+                        <button class="filter-btn active">Todos</button>
+                        <button class="filter-btn">Armas</button>
+                        <button class="filter-btn">Armaduras</button>
+                        <button class="filter-btn">Acessórios</button>
+                    </div>
+                    <div class="inv-grid" id="grid-equipamentos"></div>
+                </div>
+
+                <!-- Inventário: Materiais e Recursos -->
+                <div class="inv-category">
+                    <div class="inv-header">
+                        <h3>Materiais e Recursos <span id="count-materiais" class="slot-count">0/50</span></h3>
+                        <button class="expand-btn" data-type="materiais">+5 (Ouro)</button>
+                    </div>
+                    <div class="inv-grid" id="grid-materiais"></div>
+                </div>
+
+                <!-- Inventário: Missões -->
+                <div class="inv-category">
+                    <div class="inv-header">
+                        <h3>Itens de Missão <span id="count-missoes" class="slot-count">0/35</span></h3>
+                        <button class="expand-btn" data-type="missoes">+3 (Ouro)</button>
+                    </div>
+                    <div class="inv-grid" id="grid-missoes"></div>
+                </div>
+
+                <!-- Inventário: Espaço Pet -->
+                <div class="inv-category">
+                    <div class="inv-header">
+                        <h3>Espaço Pet <span id="count-pets" class="slot-count">0/10</span></h3>
+                        <button class="expand-btn diamond-btn" data-type="pets">+5 (Diamante)</button>
+                    </div>
+                    <div class="inv-grid" id="grid-pets"></div>
+                </div>
+
+            </div>
+
+            <!-- TELA: PERSONAGEM (Equipamentos Equipados) -->
+            <div id="view-personagem" class="view-section hidden">
+                
+                <div class="view-header centered">
+                    <h2>⚔️ EQUIPAMENTOS</h2>
+                </div>
+
+                <!-- Grid Paper Doll (Personagem no Centro) -->
+                <div class="paperdoll-container">
+                    
+                    <!-- Coluna Esquerda (7 Slots) -->
+                    <div class="equip-col">
+                        <div class="equip-slot"><span class="slot-bg">Brinco</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Colar</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Capa</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Arma 1</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Luvas</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Anel 1</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Anel 3</span></div>
+                    </div>
+
+                    <!-- Coluna Central (5 Slots + Personagem) -->
+                    <div class="equip-col center-col">
+                        <div class="equip-slot"><span class="slot-bg">Elmo</span></div>
+                        
+                        <!-- Modelo do Personagem com Brilho Místico -->
+                        <div class="character-model">
+                            <div class="mystic-glow"></div>
+                            <img src="Humano.png" alt="Personagem" class="char-sprite-large">
+                        </div>
+
+                        <div class="equip-slot"><span class="slot-bg">Armadura</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Calça</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Pet 1</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Pet 2</span></div>
+                    </div>
+
+                    <!-- Coluna Direita (7 Slots) -->
+                    <div class="equip-col">
+                        <div class="equip-slot"><span class="slot-bg">Brinco</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Relíquia</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Cinto</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Arma 2</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Botas</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Anel 2</span></div>
+                        <div class="equip-slot"><span class="slot-bg">Anel 4</span></div>
+                    </div>
+
+                </div>
+
+                <!-- Seção de Talismãs -->
+                <div class="talismans-section">
+                    <div class="view-header centered">
+                        <h3>🔮 TALISMÃS</h3>
+                    </div>
+                    
+                    <div class="talismans-grid" id="talismans-grid">
+                        <!-- Desbloqueios em Níveis: 70, 140, 210, 280, 350 -->
+                        <div class="equip-slot talisman locked" data-unlock="70">
+                            <span class="lock-icon">🔒</span><span class="slot-bg">NV 70</span>
+                        </div>
+                        <div class="equip-slot talisman locked" data-unlock="140">
+                            <span class="lock-icon">🔒</span><span class="slot-bg">NV 140</span>
+                        </div>
+                        <div class="equip-slot talisman locked" data-unlock="210">
+                            <span class="lock-icon">🔒</span><span class="slot-bg">NV 210</span>
+                        </div>
+                        <div class="equip-slot talisman locked" data-unlock="280">
+                            <span class="lock-icon">🔒</span><span class="slot-bg">NV 280</span>
+                        </div>
+                        <div class="equip-slot talisman locked" data-unlock="350">
+                            <span class="lock-icon">🔒</span><span class="slot-bg">NV 350</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </main>
 
         <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
