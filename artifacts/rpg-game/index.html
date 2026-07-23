@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="header-nav.css">
     <link rel="stylesheet" href="inventory.css">
     <link rel="stylesheet" href="character.css">
+    <link rel="stylesheet" href="work.css">
 </head>
 <body>
     <div id="game-ui">
@@ -103,6 +104,42 @@
                         <h3>Bem-vindo ao Mundo</h3>
                         <p>Selecione uma ação abaixo ou explore os menus.</p>
                     </div>
+                </div>
+            </div>
+
+            <!-- TELA: TRABALHOS -->
+            <div id="view-trabalhos" class="view-section hidden">
+                <div class="view-header">
+                    <h2>⚒️ TRABALHO</h2>
+                </div>
+                <p class="work-desc">Trabalhe para ganhar moedas e experiência. Cada trabalho gasta energia e impede missões ativas durante o processo.</p>
+                
+                <!-- Status da Energia focado para Trabalho -->
+                <div class="stamina-panel">
+                    <div class="stamina-label"><span class="st-icon">⚡</span> Energia</div>
+                    <div class="bar-track st-track-large"><div class="bar-fill st-fill" style="width: 100%;"></div></div>
+                    <div class="stamina-text">57/57</div>
+                </div>
+
+                <!-- Info de Maestria -->
+                <div class="mastery-info-box">
+                    <div class="mastery-star">⭐</div>
+                    <div class="mastery-text">
+                        <h4>Maestria de Trabalho ativa</h4>
+                        <p>Repita um trabalho para subir de nível e ganhar mais moedas e XP.</p>
+                    </div>
+                </div>
+
+                <!-- Abas Internas de Trabalho -->
+                <div class="work-tabs">
+                    <button class="work-tab active" data-work-tab="para-voce">Para você (<span id="count-voce">0</span>)</button>
+                    <button class="work-tab" data-work-tab="proximos">Próximos (<span id="count-proximos">0</span>)</button>
+                    <button class="work-tab" data-work-tab="outros">Outros (0)</button>
+                </div>
+
+                <!-- Lista Dinâmica de Trabalhos -->
+                <div class="work-list-container" id="work-list-container">
+                    <!-- Cards renderizados via JS -->
                 </div>
             </div>
 

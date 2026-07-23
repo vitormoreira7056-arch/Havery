@@ -1,8 +1,7 @@
 export class UIManager {
     constructor() {
-        // --- Dados Simulados do Jogador ---
         this.player = {
-            level: 150, // Mude este valor para testar o desbloqueio dos Talismãs!
+            level: 60, // Nível 60 para podermos ver alguns liberados e outros bloqueados
             gold: 1658,
             diamond: 12
         };
@@ -13,6 +12,32 @@ export class UIManager {
             missoes: { current: 35, max: 50, step: 3, cost: 75, curr: 'gold', items: [] },
             pets: { current: 10, max: 30, step: 5, cost: 10, curr: 'diamond', items: [] }
         };
+
+        // --- DADOS DOS TRABALHOS ---
+        this.jobsData = [
+            { id: 1, name: 'Ajudante de mercado', reqLevel: 1, stamina: 4, currType: 'copper', baseReward: 150, baseXP: 50, mastery: 1, maxMastery: 10 },
+            { id: 2, name: 'Entregador de cartas', reqLevel: 5, stamina: 11, currType: 'copper', baseReward: 300, baseXP: 100, mastery: 2, maxMastery: 10 },
+            { id: 3, name: 'Coletor de lenha', reqLevel: 10, stamina: 18, currType: 'copper', baseReward: 550, baseXP: 220, mastery: 1, maxMastery: 10 },
+            { id: 4, name: 'Coletor de ervas', reqLevel: 20, stamina: 25, currType: 'copper', baseReward: 900, baseXP: 450, mastery: 1, maxMastery: 10 },
+            { id: 5, name: 'Carregador de caixas', reqLevel: 30, stamina: 32, currType: 'copper', baseReward: 1400, baseXP: 750, mastery: 1, maxMastery: 10 },
+            { id: 6, name: 'Pescador', reqLevel: 40, stamina: 39, currType: 'copper', baseReward: 2000, baseXP: 1100, mastery: 1, maxMastery: 10 },
+            { id: 7, name: 'Vigia da floresta', reqLevel: 50, stamina: 46, currType: 'copper', baseReward: 2800, baseXP: 1600, mastery: 1, maxMastery: 10 },
+            { id: 8, name: 'Vigia do portão', reqLevel: 65, stamina: 52, currType: 'copper', baseReward: 4000, baseXP: 2400, mastery: 1, maxMastery: 10 },
+            { id: 9, name: 'Auxiliar na mina', reqLevel: 75, stamina: 59, currType: 'copper', baseReward: 5500, baseXP: 3500, mastery: 1, maxMastery: 10 },
+            { id: 10, name: 'Mensageiro real', reqLevel: 90, stamina: 66, currType: 'bronze', baseReward: 800, baseXP: 5000, mastery: 1, maxMastery: 10 },
+            { id: 11, name: 'Mercenário do rei', reqLevel: 120, stamina: 73, currType: 'bronze', baseReward: 1500, baseXP: 8000, mastery: 1, maxMastery: 10 },
+            { id: 12, name: 'Emissário do rei', reqLevel: 150, stamina: 80, currType: 'bronze', baseReward: 3000, baseXP: 15000, mastery: 1, maxMastery: 10 }
+        ];
+
+        this.timeMultipliers = [
+            { label: '10m', mult: 1 },
+            { label: '30m', mult: 3 },
+            { label: '2h', mult: 12 },
+            { label: '4h', mult: 25 },
+            { label: '6h', mult: 40 }
+        ];
+
+        this.currentWorkTab = 'para-voce';
 
         // --- Elementos DOM ---
         this.btnMenu = document.getElementById('btn-menu');
@@ -26,10 +51,10 @@ export class UIManager {
 
         this.bindEvents();
         
-        // Inicialização das Telas
         this.updatePlayerHUD();
         this.renderAllInventories();
         this.checkTalismanUnlocks();
+        this.renderWorkTab();
     }
 
     updatePlayerHUD() {
@@ -39,7 +64,6 @@ export class UIManager {
     }
 
     bindEvents() {
-        // Menu Suspenso
         this.btnMenu.addEventListener('click', (e) => {
             e.stopPropagation();
             this.dropdownMenu.classList.toggle('hidden');
@@ -51,7 +75,7 @@ export class UIManager {
             }
         });
 
-        // Roteador de Telas (Navegação Inferior)
+        // Navegação Inferior
         this.navItems.forEach(item => {
             item.addEventListener('click', () => {
                 this.navItems.forEach(nav => nav.classList.remove('active'));
@@ -71,7 +95,6 @@ export class UIManager {
             });
         });
 
-        // Botões de Expansão de Inventário
         const expandBtns = document.querySelectorAll('.expand-btn');
         expandBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -79,16 +102,104 @@ export class UIManager {
                 this.expandInventory(type, e.target);
             });
         });
+
+        // Abas da tela de Trabalhos
+        const workTabs = document.querySelectorAll('.work-tab');
+        workTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                workTabs.forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                this.currentWorkTab = e.target.getAttribute('data-work-tab');
+                this.renderWorkTab();
+            });
+        });
     }
 
-    // --- LÓGICA DE DESBLOQUEIO DOS TALISMÃS ---
+    // --- LÓGICA DE TRABALHOS (Nova Função) ---
+    renderWorkTab() {
+        const container = document.getElementById('work-list-container');
+        container.innerHTML = '';
+
+        // Filtra os trabalhos dependendo do nível atual do jogador
+        const availableJobs = this.jobsData.filter(job => job.reqLevel <= this.player.level);
+        const lockedJobs = this.jobsData.filter(job => job.reqLevel > this.player.level);
+
+        document.getElementById('count-voce').textContent = availableJobs.length;
+        document.getElementById('count-proximos').textContent = lockedJobs.length;
+
+        let jobsToRender = [];
+        if (this.currentWorkTab === 'para-voce') jobsToRender = availableJobs;
+        else if (this.currentWorkTab === 'proximos') jobsToRender = lockedJobs;
+
+        jobsToRender.forEach(job => {
+            const card = document.createElement('div');
+            card.className = `work-card ${this.currentWorkTab === 'proximos' ? 'locked' : ''}`;
+            
+            // Renderiza as opções de tempo (a primeira ativa por padrão)
+            let timeHtml = '';
+            this.timeMultipliers.forEach((t, index) => {
+                const activeClass = index === 0 ? 'active' : '';
+                timeHtml += `<button class="time-btn ${activeClass}" data-mult="${t.mult}">${t.label}</button>`;
+            });
+
+            // Recompensa com base na maestria (Ex: +10% de recompensa por nível de maestria)
+            const masteryMultiplier = 1 + ((job.mastery - 1) * 0.1);
+            const displayReward = Math.floor(job.baseReward * masteryMultiplier);
+            const currIcon = job.currType === 'copper' ? '🟤' : '🟠';
+
+            card.innerHTML = `
+                <div class="work-header">
+                    <div class="work-img-placeholder">⚒️</div>
+                    <div class="work-details">
+                        <h3>${job.name}</h3>
+                        <div class="work-meta">
+                            <span>Nv.${job.reqLevel}</span>
+                            <span style="color:#4caf50;">⚡ ${job.stamina}</span>
+                        </div>
+                        <div class="work-reward">
+                            <span class="curr-icon">${currIcon}</span> +<span class="reward-val">${displayReward}</span>
+                        </div>
+                        <div class="mastery-progress-box">
+                            <span class="m-level">⭐ Maestria ${job.mastery}/${job.maxMastery}</span>
+                            <div class="m-track"><div class="m-fill" style="width: ${(job.mastery/job.maxMastery)*100}%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="work-actions">
+                    <div class="time-selectors">${timeHtml}</div>
+                    <button class="btn-start-work">Iniciar</button>
+                </div>
+            `;
+
+            // Lógica para alterar o valor recompensado quando clica nos tempos
+            if (this.currentWorkTab === 'para-voce') {
+                const timeBtns = card.querySelectorAll('.time-btn');
+                const rewardValDisplay = card.querySelector('.reward-val');
+
+                timeBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        timeBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        const mult = parseInt(btn.getAttribute('data-mult'));
+                        rewardValDisplay.textContent = Math.floor(displayReward * mult);
+                    });
+                });
+
+                const startBtn = card.querySelector('.btn-start-work');
+                startBtn.addEventListener('click', () => {
+                    alert(`Iniciou trabalho: ${job.name}. Você não pode fazer missões enquanto trabalha.`);
+                });
+            }
+
+            container.appendChild(card);
+        });
+    }
+
+    // --- LÓGICA DE INVENTÁRIO (Mantida) ---
     checkTalismanUnlocks() {
         const talismanSlots = document.querySelectorAll('.talisman.locked');
-        
         talismanSlots.forEach(slot => {
             const unlockLevel = parseInt(slot.getAttribute('data-unlock'));
-            
-            // Se o nível do player for maior ou igual, desbloqueia
             if (this.player.level >= unlockLevel) {
                 slot.classList.remove('locked');
                 slot.innerHTML = `<span class="slot-bg">Talismã</span>`;
@@ -96,7 +207,6 @@ export class UIManager {
         });
     }
 
-    // --- LÓGICA DE INVENTÁRIO (Mochila) ---
     renderAllInventories() {
         this.renderInventoryGrid('equipamentos');
         this.renderInventoryGrid('materiais');
@@ -109,7 +219,6 @@ export class UIManager {
         const grid = document.getElementById(`grid-${type}`);
         const countText = document.getElementById(`count-${type}`);
         
-        // Verifica se os elementos existem no DOM (evita erro caso estejamos em outra tela)
         if(!grid) return; 
 
         grid.innerHTML = ''; 

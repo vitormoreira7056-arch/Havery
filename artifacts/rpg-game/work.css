@@ -1,0 +1,240 @@
+/* ================= TELA DE TRABALHOS ================= */
+.work-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 5px;
+}
+
+/* Painel de Energia Extra */
+.stamina-panel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(32, 16, 51, 0.5);
+    padding: 10px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.stamina-label {
+    font-size: 0.85rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.st-track-large {
+    height: 12px;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.stamina-text {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #4caf50;
+}
+
+/* Informação de Maestria */
+.mastery-info-box {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
+    border-left: 3px solid var(--gold-primary);
+    padding: 12px;
+    border-radius: 4px;
+}
+
+.mastery-star {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 0 5px var(--gold-primary));
+}
+
+.mastery-text h4 {
+    color: var(--gold-light);
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+
+.mastery-text p {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Abas Internas de Trabalho */
+.work-tabs {
+    display: flex;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    margin-top: 10px;
+}
+
+.work-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 10px 0;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+}
+
+.work-tab.active {
+    color: var(--gold-light);
+    border-bottom-color: var(--gold-primary);
+}
+
+/* Lista de Trabalhos */
+.work-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+/* Card Individual de Trabalho */
+.work-card {
+    background: rgba(22, 10, 34, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    transition: transform 0.2s;
+}
+
+.work-card.locked {
+    opacity: 0.6;
+    filter: grayscale(80%);
+    pointer-events: none;
+}
+
+.work-header {
+    display: flex;
+    gap: 15px;
+}
+
+.work-img-placeholder {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #2a1b3d, #120d18);
+    border: 1px solid var(--gold-dark);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+}
+
+.work-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.work-details h3 {
+    color: var(--text-main);
+    font-size: 1rem;
+    line-height: 1.1;
+}
+
+.work-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.work-reward {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--gold-light);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Maestria Barra do Card */
+.mastery-progress-box {
+    margin-top: 5px;
+}
+
+.mastery-progress-box .m-level {
+    font-size: 0.75rem;
+    color: var(--gold-primary);
+    font-weight: bold;
+    margin-bottom: 3px;
+    display: block;
+}
+
+.m-track {
+    height: 4px;
+    background: rgba(0,0,0,0.8);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.m-fill {
+    height: 100%;
+    background: var(--gold-primary);
+    width: 0%;
+}
+
+/* Seletores de Tempo e Botão Iniciar */
+.work-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 10px;
+}
+
+.time-selectors {
+    display: flex;
+    gap: 5px;
+}
+
+.time-btn {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.time-btn.active {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: var(--gold-primary);
+    color: var(--gold-light);
+    font-weight: bold;
+}
+
+.btn-start-work {
+    background: linear-gradient(180deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+    color: #000;
+    border: none;
+    font-weight: bold;
+    padding: 6px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.6);
+}
+
+.btn-start-work:active {
+    transform: scale(0.95);
+}
