@@ -56,7 +56,6 @@ export class InputHandler {
             startX = clientX;
             startY = clientY;
 
-            // Posiciona o container exatamente onde o usuário clicou/tocou
             container.style.left = `${startX - rect.left}px`;
             container.style.top = `${startY - rect.top}px`;
             container.classList.add('active');
@@ -97,7 +96,6 @@ export class InputHandler {
             container.classList.remove('active');
         };
 
-        // Touch Events (Mobile)
         window.addEventListener('touchstart', (e) => {
             const touch = e.changedTouches[0];
             handleStart(touch.clientX, touch.clientY, touch.identifier);
@@ -121,7 +119,6 @@ export class InputHandler {
             }
         });
 
-        // Mouse Events (Desktop)
         gameContainer.addEventListener('mousedown', (e) => {
             handleStart(e.clientX, e.clientY);
         });

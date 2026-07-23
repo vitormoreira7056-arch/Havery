@@ -6,25 +6,36 @@ export class Player {
         this.y = y;
         this.width = 32;
         this.height = 32;
-        this.speed = 3;
+        this.speed = 3.5;
         
         this.race = RACES[raceKey] || RACES.HUMANO;
         this.hp = this.race.bonus.hp;
         this.maxHp = this.race.bonus.hp;
         
         this.direction = 'DOWN';
+        this.isMoving = false;
+        this.animTimer = 0;
     }
 
     move(dx, dy, mapWidth, mapHeight) {
         const currentSpeed = this.speed * this.race.bonus.speed;
         
+        if (dx !== 0 || dy !== 0) {
+            this.isMoving = true;
+            this.animTimer += 0.18;
+        } else {
+            this.isMoving = false;
+            this.animTimer = 0;
+        }
+
         this.x += dx * currentSpeed;
         this.y += dy * currentSpeed;
 
-        if (this.x < 0) this.x = 0;
-        if (this.y < 0) this.y = 0;
-        if (this.x + this.width > mapWidth) this.x = mapWidth - this.width;
-        if (this.y + this.height > mapHeight) this.y = mapHeight - this.height;
+        // Limites do mapa expandido
+        if (this.x < 30) this.x = 30;
+        if (this.y < 30) this.y = 30;
+        if (this.x + this.width > mapWidth - 30) this.x = mapWidth - 30 - this.width;
+        if (this.y + this.height > mapHeight - 30) this.y = mapHeight - 30 - this.height;
 
         if (dx !== 0 || dy !== 0) {
             if (Math.abs(dx) > Math.abs(dy)) {
@@ -38,59 +49,80 @@ export class Player {
     draw(ctx) {
         ctx.save();
         
+        // Efeito de movimento (bobbing) ao caminhar
+        let bob = this.isMoving ? Math.sin(this.animTimer * 5) * 2.5 : 0;
+        let renderY = this.y + bob;
+
         // Sombra suave no chão
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.beginPath();
-        ctx.arc(this.x + 16, this.y + 28, 10, 0, Math.PI * 2);
+        ctx.arc(this.x + 16, this.y + 30, 12, 0, Math.PI * 2);
         ctx.fill();
 
-        // Manto / Capa Dark Fantasy
-        ctx.fillStyle = '#2c1e3b';
-        ctx.fillRect(this.x + 4, this.y + 10, 24, 18);
-
-        // Corpo / Armadura com detalhe central místico
-        ctx.fillStyle = '#513d6a';
-        ctx.fillRect(this.x + 8, this.y + 12, 16, 14);
-        
-        ctx.fillStyle = '#8a4fff';
-        ctx.fillRect(this.x + 14, this.y + 16, 4, 4);
-
-        // Cabeça / Capuz
-        ctx.fillStyle = '#39264f';
-        ctx.fillRect(this.x + 7, this.y + 4, 18, 12);
-
-        // Olhos brilhantes característica Dark Fantasy
-        ctx.fillStyle = '#ff3366';
+        // Manto / Capa Dark Fantasy flutuando levemente
+        ctx.fillStyle = '#221530';
         if (this.direction === 'DOWN') {
-            ctx.fillRect(this.x + 10, this.y + 9, 3, 2);
-            ctx.fillRect(this.x + 19, this.y + 9, 3, 2);
-        } else if (this.direction === 'RIGHT') {
-            ctx.fillRect(this.x + 20, this.y + 9, 3, 2);
+            ctx.fillRect(this.x + 6, renderY + 8, 20, 18);
+        } else if (this.direction === 'UP') {
+            ctx.fillRect(this.x + 6, renderY + 12, 20, 16);
         } else if (this.direction === 'LEFT') {
-            ctx.fillRect(this.x + 9, this.y + 9, 3, 2);
+            ctx.fillRect(this.x + 10, renderY + 10, 18, 16);
+        } else {
+            ctx.fillRect(this.x + 4, renderY + 10, 18, 16);
         }
 
-        // Arma / Espada detalhada na lateral baseada na direção
-        ctx.fillStyle = '#c0c0c0';
-        if (this.direction === 'RIGHT') {
-            ctx.fillRect(this.x + 24, this.y + 12, 2, 12);
-            ctx.fillStyle = '#5a3d28';
-            ctx.fillRect(this.x + 24, this.y + 10, 2, 2);
+        // Corpo / Armadura com detalhes avançados
+        ctx.fillStyle = '#483563';
+        ctx.fillRect(this.x + 8, renderY + 12, 16, 14);
+        
+        // Gema Mística Central
+        ctx.fillStyle = '#9b51e0';
+        ctx.fillRect(this.x + 14, renderY + 16, 4, 4);
+
+        // Ombreiras
+        ctx.fillStyle = '#6b518c';
+        ctx.fillRect(this.x + 6, renderY + 11, 6, 4);
+        ctx.fillRect(this.x + 20, renderY + 11, 6, 4);
+
+        // Cabeça / Capuz
+        ctx.fillStyle = '#321f47';
+        ctx.fillRect(this.x + 7, renderY + 3, 18, 12);
+
+        // Olhos brilhantes penetrantes
+        ctx.fillStyle = '#ff2a5f';
+        ctx.shadowColor = '#ff2a5f';
+        ctx.shadowBlur = 6;
+        if (this.direction === 'DOWN') {
+            ctx.fillRect(this.x + 10, renderY + 8, 3, 2);
+            ctx.fillRect(this.x + 19, renderY + 8, 3, 2);
+        } else if (this.direction === 'RIGHT') {
+            ctx.fillRect(this.x + 20, renderY + 8, 3, 2);
         } else if (this.direction === 'LEFT') {
-            ctx.fillRect(this.x + 6, this.y + 12, 2, 12);
-            ctx.fillStyle = '#5a3d28';
-            ctx.fillRect(this.x + 6, this.y + 10, 2, 2);
+            ctx.fillRect(this.x + 9, renderY + 8, 3, 2);
+        }
+        ctx.shadowBlur = 0;
+
+        // Espada Rúnica detalhada na lateral
+        ctx.fillStyle = '#a6b1e1';
+        if (this.direction === 'RIGHT') {
+            ctx.fillRect(this.x + 25, renderY + 10, 2, 14);
+            ctx.fillStyle = '#e8a87c';
+            ctx.fillRect(this.x + 25, renderY + 9, 2, 2);
+        } else if (this.direction === 'LEFT') {
+            ctx.fillRect(this.x + 5, renderY + 10, 2, 14);
+            ctx.fillStyle = '#e8a87c';
+            ctx.fillRect(this.x + 5, renderY + 9, 2, 2);
         } else if (this.direction === 'DOWN') {
-            ctx.fillRect(this.x + 26, this.y + 14, 2, 10);
+            ctx.fillRect(this.x + 27, renderY + 13, 2, 12);
         } else {
-            ctx.fillRect(this.x + 4, this.y + 14, 2, 10);
+            ctx.fillRect(this.x + 3, renderY + 13, 2, 12);
         }
 
         // Barra de Vida Estilizada
-        ctx.fillStyle = 'rgba(10, 5, 15, 0.8)';
-        ctx.fillRect(this.x - 2, this.y - 8, 36, 5);
-        ctx.fillStyle = '#ff3366';
-        ctx.fillRect(this.x - 1, this.y - 7, (this.hp / this.maxHp) * 34, 3);
+        ctx.fillStyle = 'rgba(10, 5, 15, 0.85)';
+        ctx.fillRect(this.x - 4, renderY - 12, 40, 5);
+        ctx.fillStyle = '#ff2a5f';
+        ctx.fillRect(this.x - 3, renderY - 11, (this.hp / this.maxHp) * 38, 3);
 
         ctx.restore();
     }
