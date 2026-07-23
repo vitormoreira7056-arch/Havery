@@ -1,6 +1,5 @@
 export const viewsHTML = `
 <main id="main-content">
-    
     <!-- TELA: MUNDO -->
     <div id="view-mundo" class="view-section active">
         <div class="placeholder-content">
@@ -11,16 +10,28 @@ export const viewsHTML = `
         </div>
     </div>
 
-    <!-- TELA: MAPA (Novo Sistema Gigante) -->
+    <!-- TELA: MAPA (Novo Sistema Gigante com Zoom Dinâmico) -->
     <div id="view-mapa" class="view-section hidden">
         <div class="map-header">
             <h2>🗺️ Mapa do Mundo — Dreht</h2>
         </div>
         
         <div class="map-viewport" id="map-viewport">
-            <div class="map-world" id="map-world">
-                <!-- Nodos gerados dinamicamente via JS -->
+            
+            <!-- Controles Virtuais de Zoom -->
+            <div class="map-controls">
+                <button class="map-btn" id="btn-zoom-in">+</button>
+                <button class="map-btn" id="btn-zoom-out">-</button>
             </div>
+
+            <!-- Div que calcula o tamanho físico pro scroll não quebrar -->
+            <div class="map-scale-wrapper" id="map-scale-wrapper">
+                <!-- O Mapa Bruto que recebe a transformação de escala -->
+                <div class="map-world" id="map-world">
+                    <!-- Nodos gerados dinamicamente via JS -->
+                </div>
+            </div>
+
         </div>
 
         <!-- Painel Inferior do Mapa -->
@@ -41,13 +52,17 @@ export const viewsHTML = `
 
     <!-- TELA: TRABALHOS -->
     <div id="view-trabalhos" class="view-section hidden">
-        <div class="view-header"><h2>⚒️ TRABALHO</h2></div>
+        <div class="view-header">
+            <h2>⚒️ TRABALHO</h2>
+        </div>
         <p class="work-desc">Trabalhe para ganhar moedas e experiência. Cada trabalho gasta energia e impede missões ativas durante o processo.</p>
+        
         <div class="stamina-panel">
             <div class="stamina-label"><span class="st-icon">⚡</span> Energia</div>
             <div class="bar-track st-track-large"><div class="bar-fill st-fill" style="width: 100%;"></div></div>
             <div class="stamina-text">57/57</div>
         </div>
+
         <div class="mastery-info-box">
             <div class="mastery-star">⭐</div>
             <div class="mastery-text">
@@ -55,12 +70,16 @@ export const viewsHTML = `
                 <p>Repita um trabalho para subir de nível e ganhar mais moedas e XP.</p>
             </div>
         </div>
+
         <div class="work-tabs">
             <button class="work-tab active" data-work-tab="para-voce">Para você (<span id="count-voce">0</span>)</button>
             <button class="work-tab" data-work-tab="proximos">Próximos (<span id="count-proximos">0</span>)</button>
             <button class="work-tab" data-work-tab="outros">Outros (0)</button>
         </div>
-        <div class="work-list-container" id="work-list-container"></div>
+
+        <div class="work-list-container" id="work-list-container">
+            <!-- Cards renderizados via JS -->
+        </div>
     </div>
 
     <!-- TELA: MOCHILA -->

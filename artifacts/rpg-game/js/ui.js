@@ -1,5 +1,7 @@
 import { headerHTML } from './header.js';
 import { viewsHTML } from './views.js';
+import { INVENTORY_SETTINGS, JOBS_DATA, TIME_MULTIPLIERS } from './data.js';
+import { MapEngine } from './map.js';
 
 export class UIManager {
     constructor() {
@@ -9,70 +11,14 @@ export class UIManager {
             diamond: 12
         };
 
-        this.inventorySettings = {
-            equipamentos: { current: 70, max: null, step: 5, cost: 100, curr: 'gold', items: [] },
-            materiais: { current: 50, max: null, step: 5, cost: 50, curr: 'gold', items: [] },
-            missoes: { current: 35, max: 50, step: 3, cost: 75, curr: 'gold', items: [] },
-            pets: { current: 10, max: 30, step: 5, cost: 10, curr: 'diamond', items: [] }
-        };
-
-        // --- MAPA MUNDO (Coordenadas ajustadas para o novo mapa) ---
-        this.worldLocations = [
-            // Capitais Centrais
-            { id: 'erins', name: 'Erins', type: 'capital', x: 50, y: 38, desc: 'A capital central de Dreht, erguida ao redor do grande cristal místico.' },
-            { id: 'erinia', name: 'Erinia', type: 'capital', x: 51, y: 64, desc: 'A segunda maior fortaleza do continente, lar dos cavaleiros reais.' },
-            
-            // Cidades e Vilas Continentais
-            { id: 'joree', name: 'Joree', type: 'cidade', x: 55, y: 15, desc: 'Vila pacífica escondida na grande floresta do norte.' },
-            { id: 'dorrene', name: 'Dorrene', type: 'cidade', x: 33, y: 22, desc: 'A joia do deserto. Conhecida por seus mercados de especiarias.' },
-            { id: 'alena', name: 'Alena', type: 'cidade', x: 79, y: 28, desc: 'Cidade portuária, porta de entrada para os mares do leste.' },
-            { id: 'sutalisco', name: 'Sutalisco', type: 'cidade', x: 78, y: 46, desc: 'Maior polo comercial das planícies orientais.' },
-            { id: 'bareon', name: 'Bareon', type: 'cidade', x: 41, y: 55, desc: 'Posto avançado militar próximo ao Lago Prateado.' },
-            { id: 'porto_salmar', name: 'Porto de Salmar', type: 'cidade', x: 17, y: 37, desc: 'Principal porto pesqueiro na costa oeste do continente.' },
-            { id: 'zarvath', name: 'Zarvath', type: 'cidade', x: 53, y: 92, desc: 'Polo mercante do extremo sul, banhado por águas quentes.' },
-            { id: 'refugio_piratas', name: 'Refúgio dos Piratas', type: 'cidade', x: 26, y: 85, desc: 'Baía escondida, porto seguro para contrabandistas e saqueadores.' },
-            
-            // Reinos Distantes
-            { id: 'aqualon', name: 'Aqualon', type: 'capital', x: 94, y: 70, desc: 'A majestosa cidade insular, capital inquestionável dos mares.' },
-            { id: 'alfheim', name: 'Alfheim', type: 'capital', x: 75, y: 18, desc: 'A grandiosa e reclusa capital dos altos elfos.' },
-            
-            // Masmorras e Zonas de Perigo
-            { id: 'picos_flamejantes', name: 'Picos Flamejantes', type: 'perigo', x: 17, y: 11, desc: 'Vulcões ativos que abrigam dragões e elementais de fogo.' },
-            { id: 'minas_ferro', name: 'Minas de Ferro', type: 'dungeon', x: 13, y: 18, desc: 'Maior fonte de minérios do continente, tomada por bestas.' },
-            { id: 'deserto_arak', name: 'Deserto de Arak', type: 'perigo', x: 13, y: 50, desc: 'Dunas escaldantes onde impérios antigos estão enterrados.' },
-            { id: 'templo_deuses', name: 'Templo dos Deuses', type: 'dungeon', x: 15, y: 63, desc: 'Um templo ancestral esquecido nas areias impiedosas.' },
-            { id: 'fortaleza_sombras', name: 'Fortaleza das Sombras', type: 'perigo', x: 80, y: 82, desc: 'Domínio corrompido por magia obscura e lordes necromantes.' },
-            { id: 'niflheim', name: 'Niflheim', type: 'dungeon', x: 88, y: 11, desc: 'Castelo congelado nos confins mais hostis do oceano nórdico.' },
-            { id: 'coroa_gelo', name: 'Coroa do Gelo', type: 'perigo', x: 45, y: 6, desc: 'O pico mais alto e gelado do mundo, lar de feras da neve.' },
-            { id: 'floresta_thorn', name: 'Floresta de Thorn', type: 'perigo', x: 86, y: 56, desc: 'Um bosque denso e sombrio, repleto de criaturas selvagens.' },
-            { id: 'ruinas_zarth', name: 'Ruínas de Zarth', type: 'dungeon', x: 17, y: 77, desc: 'Resquícios de uma civilização reptiliana engolida pela selva.' },
-            { id: 'ilha_eco', name: 'Ilha do Eco', type: 'dungeon', x: 6, y: 30, desc: 'Pequena ilha misteriosa de onde cantos fantasmagóricos ecoam.' }
-        ];
-
-        this.jobsData = [
-            { id: 1, name: 'Ajudante de mercado', reqLevel: 1, stamina: 4, currType: 'copper', baseReward: 150, baseXP: 50, mastery: 1, maxMastery: 10 },
-            { id: 2, name: 'Entregador de cartas', reqLevel: 5, stamina: 11, currType: 'copper', baseReward: 300, baseXP: 100, mastery: 2, maxMastery: 10 },
-            { id: 3, name: 'Coletor de lenha', reqLevel: 10, stamina: 18, currType: 'copper', baseReward: 550, baseXP: 220, mastery: 1, maxMastery: 10 },
-            { id: 4, name: 'Coletor de ervas', reqLevel: 20, stamina: 25, currType: 'copper', baseReward: 900, baseXP: 450, mastery: 1, maxMastery: 10 },
-            { id: 5, name: 'Carregador de caixas', reqLevel: 30, stamina: 32, currType: 'copper', baseReward: 1400, baseXP: 750, mastery: 1, maxMastery: 10 },
-            { id: 6, name: 'Pescador', reqLevel: 40, stamina: 39, currType: 'copper', baseReward: 2000, baseXP: 1100, mastery: 1, maxMastery: 10 },
-            { id: 7, name: 'Vigia da floresta', reqLevel: 50, stamina: 46, currType: 'copper', baseReward: 2800, baseXP: 1600, mastery: 1, maxMastery: 10 },
-            { id: 8, name: 'Vigia do portão', reqLevel: 65, stamina: 52, currType: 'copper', baseReward: 4000, baseXP: 2400, mastery: 1, maxMastery: 10 },
-            { id: 9, name: 'Auxiliar na mina', reqLevel: 75, stamina: 59, currType: 'copper', baseReward: 5500, baseXP: 3500, mastery: 1, maxMastery: 10 },
-            { id: 10, name: 'Mensageiro real', reqLevel: 90, stamina: 66, currType: 'bronze', baseReward: 800, baseXP: 5000, mastery: 1, maxMastery: 10 },
-            { id: 11, name: 'Mercenário do rei', reqLevel: 120, stamina: 73, currType: 'bronze', baseReward: 1500, baseXP: 8000, mastery: 1, maxMastery: 10 },
-            { id: 12, name: 'Emissário do rei', reqLevel: 150, stamina: 80, currType: 'bronze', baseReward: 3000, baseXP: 15000, mastery: 1, maxMastery: 10 }
-        ];
-
-        this.timeMultipliers = [
-            { label: '10m', mult: 1 },
-            { label: '30m', mult: 3 },
-            { label: '2h', mult: 12 },
-            { label: '4h', mult: 25 },
-            { label: '6h', mult: 40 }
-        ];
-
+        // Carrega configurações dos arquivos de dados
+        this.inventorySettings = INVENTORY_SETTINGS;
+        this.jobsData = JOBS_DATA;
+        this.timeMultipliers = TIME_MULTIPLIERS;
         this.currentWorkTab = 'para-voce';
+        
+        // Instancia o novo Motor do Mapa
+        this.mapEngine = new MapEngine();
     }
 
     initDOM() {
@@ -80,7 +26,6 @@ export class UIManager {
         this.dropdownMenu = document.getElementById('dropdown-menu');
         this.navItems = document.querySelectorAll('.nav-item');
         this.views = document.querySelectorAll('.view-section');
-
         this.uiLevel = document.getElementById('ui-level');
         this.uiGold = document.getElementById('ui-gold');
         this.uiDiamond = document.getElementById('ui-diamond');
@@ -91,8 +36,8 @@ export class UIManager {
         this.checkTalismanUnlocks();
         this.renderWorkTab();
         
-        // Inicializa o novo sistema do Mapa
-        this.initMapSystem();
+        // Inicializa interações no Motor de Mapa Separado
+        this.mapEngine.init();
     }
 
     updatePlayerHUD() {
@@ -125,9 +70,10 @@ export class UIManager {
                         view.classList.add('active');
                         view.classList.remove('hidden');
                         
-                        // Scrolla o mapa para o centro (Erins) ao abrir
+                        // Direciona o scroll ao abrir a view do mapa
                         if(targetViewId === 'view-mapa') {
-                            this.centerMapViewport();
+                            this.mapEngine.applyScale();
+                            setTimeout(() => this.mapEngine.centerViewport(), 50);
                         }
                     } else {
                         view.classList.remove('active');
@@ -156,57 +102,6 @@ export class UIManager {
         });
     }
 
-    // --- SISTEMA GIGANTE DO MAPA ---
-    initMapSystem() {
-        const mapWorld = document.getElementById('map-world');
-        if(!mapWorld) return;
-
-        mapWorld.innerHTML = ''; // Limpa antes de renderizar
-
-        this.worldLocations.forEach(loc => {
-            const node = document.createElement('div');
-            node.className = `map-node type-${loc.type}`;
-            node.style.left = `${loc.x}%`;
-            node.style.top = `${loc.y}%`;
-            node.setAttribute('data-id', loc.id);
-            
-            node.innerHTML = `
-                <div class="node-indicator"></div>
-                <div class="node-label">${loc.name}</div>
-            `;
-
-            node.addEventListener('click', () => {
-                document.querySelectorAll('.map-node').forEach(n => n.classList.remove('active'));
-                node.classList.add('active');
-                
-                document.getElementById('map-empty-state').style.display = 'none';
-                const details = document.getElementById('map-details-state');
-                details.classList.add('active');
-                
-                document.getElementById('loc-name').textContent = loc.name;
-                document.getElementById('loc-desc').textContent = loc.desc;
-            });
-
-            mapWorld.appendChild(node);
-        });
-
-        document.getElementById('btn-viajar')?.addEventListener('click', () => {
-            const locName = document.getElementById('loc-name').textContent;
-            alert(`Iniciando viagem para ${locName}...`);
-        });
-    }
-
-    centerMapViewport() {
-        const viewport = document.getElementById('map-viewport');
-        const world = document.getElementById('map-world');
-        if(viewport && world) {
-            // Centraliza aproximadamente na posição de Erins (50%, 38%)
-            viewport.scrollLeft = (world.offsetWidth * 0.50) - (viewport.offsetWidth / 2);
-            viewport.scrollTop = (world.offsetHeight * 0.38) - (viewport.offsetHeight / 2);
-        }
-    }
-
-    // --- OUTROS SISTEMAS ---
     renderWorkTab() {
         const container = document.getElementById('work-list-container');
         if (!container) return;
@@ -275,7 +170,7 @@ export class UIManager {
 
                 const startBtn = card.querySelector('.btn-start-work');
                 startBtn.addEventListener('click', () => {
-                    alert(`Iniciou trabalho: ${job.name}.`);
+                    alert(`Iniciou trabalho: ${job.name}. Você não pode fazer missões enquanto trabalha.`);
                 });
             }
 
