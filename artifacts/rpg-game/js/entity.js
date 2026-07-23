@@ -5,22 +5,26 @@ export class Entity {
     constructor(name, initialStats = {}) {
         this.name = name;
         
-        // Clona os templates zerados para evitar mutação indesejada no objeto base
+        // Atributos base e elementais
         this.stats = { ...ATTRIBUTES_TEMPLATE };
         this.elements = generateElementalTemplate();
-        
-        // Aplica os atributos iniciais passados por parâmetro (Raça, Inimigo, Equipamentos)
         this.applyStats(initialStats);
         
-        // Vida e Mana atuais começam no máximo
         this.currentHp = this.stats.HP;
         this.currentMp = this.stats.MP;
-        
-        // Estados temporários da batalha
         this.isDefending = false;
+
+        // Sistema de Progressão
+        this.level = 1;
+        this.maxLevel = 999;
+        this.xp = 0;
+        this.xpRequired = this.calculateRequiredXp();
+        this.talentPoints = 0;
+        
+        // Recompensa que esta entidade dá ao ser derrotada
+        this.xpYield = 0;
     }
 
-    // Função modular para somar atributos (útil quando equipar itens)
     applyStats(newStats) {
         for (const stat in newStats) {
             if (this.stats[stat] !== undefined) {
@@ -29,8 +33,43 @@ export class Entity {
         }
     }
 
+    // Curva Exponencial: Mais níveis = mais XP necessária para subir
+    calculateRequiredXp() {
+        return Math.floor(100 * Math.pow(this.level, 1.5));
+    }
+
+    gainXp(amount) {
+        if (this.level >= this.maxLevel) return false;
+        
+        this.xp += amount;
+        let leveledUp = false;
+
+        // Suporta múltiplos níveis de uma vez caso ganhe muita XP
+        while (this.xp >= this.xpRequired && this.level < this.maxLevel) {
+            this.xp -= this.xpRequired;
+            this.levelUp();
+            leveledUp = true;
+        }
+        
+        if (this.level >= this.maxLevel) {
+            this.xp = 0;
+            this.xpRequired = 0;
+        }
+        
+        return leveledUp;
+    }
+
+    levelUp() {
+        this.level++;
+        this.talentPoints += 3;
+        this.xpRequired = this.calculateRequiredXp();
+        
+        // Restaura a vida e mana ao passar de nível
+        this.currentHp = this.stats.HP;
+        this.currentMp = this.stats.MP;
+    }
+
     takePhysicalDamage(rawDamage) {
-        // Cálculo com Defesa Física e Penetração
         const effectiveDefense = this.isDefending ? this.stats.DF * 2 : this.stats.DF;
         let actualDamage = rawDamage - effectiveDefense;
         
@@ -42,7 +81,6 @@ export class Entity {
         return actualDamage;
     }
 
-    // Preparado para magias e ataques elementais no futuro
     takeElementalDamage(rawDamage, elementKey) {
         let resistance = this.elements.resistance[elementKey] || 0;
         let mitigatedDamage = rawDamage * (1 - (resistance / 100));

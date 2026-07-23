@@ -3,55 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG - Combate em Turnos</title>
+    <title>RPG - Mundo de Aventuras</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-container">
-        
-        <header id="battle-header">
-            <h2>Batalha Iniciada</h2>
+    <div id="game-ui">
+        <!-- CABEÇALHO SUPERIOR -->
+        <header id="top-header">
+            <div class="header-top-row">
+                <!-- Perfil (Canto Superior Esquerdo) -->
+                <div class="profile-section" id="btn-profile">
+                    <div class="avatar-wrapper">
+                        <!-- O avatar usa a classe da borda (ex: border-gold, border-iron) e a imagem da raça -->
+                        <div class="avatar-border border-gold">
+                            <img src="Humano.png" alt="Avatar" class="avatar-img">
+                        </div>
+                        <div class="level-badge">10</div>
+                    </div>
+                </div>
+
+                <!-- Informações e Barras -->
+                <div class="player-status-section">
+                    <div class="player-info-row">
+                        <div class="player-identity">
+                            <h2 id="player-name">Tracer</h2>
+                            <span id="player-class">Guerreiro Místico</span>
+                        </div>
+                        <div class="top-actions">
+                            <button id="btn-buffs" class="gold-btn">
+                                <span>✨ Buffs</span> <div class="buff-count">3</div>
+                            </button>
+                            <!-- Botão Menu (Alinhado à direita para balancear o layout AAA) -->
+                            <button id="btn-menu" class="gold-btn outline">
+                                <span>≡ Menu</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Menu Suspenso (Inicia Oculto) -->
+                    <div id="dropdown-menu" class="hidden">
+                        <ul>
+                            <li>💎 Loja Premium</li>
+                            <li>✉️ Mensagens</li>
+                            <li>📖 Guia do Jogo</li>
+                            <li>🛠️ Suporte</li>
+                            <li>⚙️ Configurações</li>
+                            <li class="exit-btn">🚪 Sair</li>
+                        </ul>
+                    </div>
+
+                    <!-- Barras de Status -->
+                    <div class="status-bars">
+                        <div class="bar-container">
+                            <div class="bar-icon hp-icon">❤</div>
+                            <div class="bar-track"><div class="bar-fill hp-fill" style="width: 100%;"></div></div>
+                            <div class="bar-value">141/141</div>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-icon mp-icon">💧</div>
+                            <div class="bar-track"><div class="bar-fill mp-fill" style="width: 80%;"></div></div>
+                            <div class="bar-value">68/85</div>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-icon st-icon">⚡</div>
+                            <div class="bar-track"><div class="bar-fill st-fill" style="width: 100%;"></div></div>
+                            <div class="bar-value">57/57</div>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-icon xp-icon">✨</div>
+                            <div class="bar-track"><div class="bar-fill xp-fill" style="width: 71.3%;"></div></div>
+                            <div class="bar-value xp-value">71.33%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faixa de Moedas -->
+            <div class="currencies-row">
+                <div class="currency"><span class="curr-icon copper">🟤</span> 12.4K</div>
+                <div class="currency"><span class="curr-icon bronze">🟠</span> 4.1K</div>
+                <div class="currency"><span class="curr-icon silver">⚪</span> 890</div>
+                <div class="currency"><span class="curr-icon gold">🟡</span> 1.658</div>
+                <div class="currency"><span class="curr-icon diamond">💎</span> 12</div>
+            </div>
         </header>
 
-        <main id="battle-arena">
-            <!-- Painel do Jogador -->
-            <section id="player-panel" class="entity-panel">
-                <h3 id="player-name">Jogador</h3>
-                <div class="health-bar-container">
-                    <div id="player-health-bar" class="health-bar player-hp"></div>
+        <!-- CENTRO ROLÁVEL (Conteúdo Principal) -->
+        <main id="main-content">
+            <!-- Espaço reservado para a cidade, eventos e ações que faremos a seguir -->
+            <div class="placeholder-content">
+                <div class="banner-cidade">
+                    <h3>Bem-vindo ao Mundo</h3>
+                    <p>Selecione uma ação abaixo ou explore os menus.</p>
                 </div>
-                <p id="player-hp-text">100 / 100 HP</p>
-            </section>
-
-            <div id="vs-badge">VS</div>
-
-            <!-- Painel do Inimigo -->
-            <section id="enemy-panel" class="entity-panel">
-                <h3 id="enemy-name">Goblin Sombrio</h3>
-                <div class="health-bar-container">
-                    <div id="enemy-health-bar" class="health-bar enemy-hp"></div>
-                </div>
-                <p id="enemy-hp-text">60 / 60 HP</p>
-            </section>
+            </div>
         </main>
 
-        <!-- Log de Combate -->
-        <section id="combat-log-container">
-            <ul id="combat-log">
-                <li>Um Goblin Sombrio bloqueia o seu caminho!</li>
-            </ul>
-        </section>
-
-        <!-- Botões de Ação -->
-        <nav id="action-menu">
-            <button id="btn-attack" class="action-btn attack-btn">Atacar</button>
-            <button id="btn-defend" class="action-btn defend-btn">Defender</button>
-            <button id="btn-heal" class="action-btn heal-btn">Curar</button>
+        <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
+        <nav id="bottom-nav">
+            <button class="nav-item active" data-target="mundo">
+                <span class="nav-icon">🌍</span>
+                <span class="nav-text">Mundo</span>
+            </button>
+            <button class="nav-item" data-target="missoes">
+                <span class="nav-icon">📜</span>
+                <span class="nav-text">Missões</span>
+            </button>
+            <button class="nav-item" data-target="trabalhos">
+                <span class="nav-icon">⛏️</span>
+                <span class="nav-text">Trabalhos</span>
+            </button>
+            <button class="nav-item" data-target="mapa">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-text">Mapa</span>
+            </button>
+            <button class="nav-item" data-target="loja">
+                <span class="nav-icon">⚖️</span>
+                <span class="nav-text">Loja</span>
+            </button>
+            <button class="nav-item" data-target="mochila">
+                <span class="nav-icon">🎒</span>
+                <span class="nav-text">Mochila</span>
+            </button>
+            <button class="nav-item" data-target="habilidades">
+                <span class="nav-icon">🔥</span>
+                <span class="nav-text">Habilidades</span>
+            </button>
+            <button class="nav-item" data-target="personagem">
+                <span class="nav-icon">🛡️</span>
+                <span class="nav-text">Personagem</span>
+            </button>
         </nav>
-
     </div>
 
-    <!-- Script Principal -->
-    <script type="module" src="js/engine.js"></script>
+    <!-- Scripts Modulares -->
+    <script type="module" src="js/ui.js"></script>
 </body>
 </html>
