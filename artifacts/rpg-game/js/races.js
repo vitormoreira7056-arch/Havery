@@ -3,18 +3,33 @@ export const RACES = {
         id: "humano",
         name: "Humano",
         image: "Humano.png",
-        bonus: { attack: 1, speed: 1, hp: 100 }
+        baseStats: { 
+            HP: 100, MP: 50, 
+            ATK: 15, ATM: 10, 
+            DF: 10, DM: 10, 
+            CAR: 5, STR: 2 
+        }
     },
     ELFO: {
         id: "elfo",
         name: "Elfo",
         image: "elfo.png",
-        bonus: { attack: 2, speed: 1.2, hp: 80 }
+        baseStats: { 
+            HP: 80, MP: 120, 
+            ATK: 10, ATM: 20, 
+            DF: 5, DM: 15, 
+            ESQ: 5, PRS: 5 
+        }
     },
     ANÃO: {
         id: "anao",
         name: "Anão",
         image: "Anão.png",
-        bonus: { attack: 3, speed: 0.8, hp: 130 }
+        baseStats: { 
+            HP: 130, MP: 30, 
+            ATK: 18, ATM: 5, 
+            DF: 20, DM: 5, 
+            TEN: 10, RCG: 10 
+        }
     }
 };
