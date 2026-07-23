@@ -14,20 +14,19 @@ export class InputHandler {
         this.joystick = {
             active: false,
             x: 0,
-            y: 0
+            y: 0,
+            identifier: null
         };
 
         this._initKeyboardListeners();
-        this._initVirtualJoystick();
+        this._initDynamicJoystick();
     }
 
     _initKeyboardListeners() {
         window.addEventListener('keydown', (e) => {
-            if (this.keys.hasOwnProperty(e.key) || this.keys.hasOwnProperty(e.code)) {
-                const key = e.key.toLowerCase();
-                if (this.keys[key] !== undefined) this.keys[key] = true;
-                if (this.keys[e.key] !== undefined) this.keys[e.key] = true;
-            }
+            const key = e.key.toLowerCase();
+            if (this.keys[key] !== undefined) this.keys[key] = true;
+            if (this.keys[e.key] !== undefined) this.keys[e.key] = true;
         });
 
         window.addEventListener('keyup', (e) => {
@@ -37,69 +36,115 @@ export class InputHandler {
         });
     }
 
-    _initVirtualJoystick() {
-        const base = document.getElementById('joystick-base');
+    _initDynamicJoystick() {
+        const container = document.getElementById('joystick-container');
         const stick = document.getElementById('joystick-stick');
-        let rect = base.getBoundingClientRect();
+        const gameContainer = document.getElementById('game-container');
+        
+        let startX = 0;
+        let startY = 0;
         let maxDistance = 40;
 
-        const handleTouchStart = (e) => {
+        const handleStart = (clientX, clientY, identifier = null) => {
+            if (this.joystick.active) return;
+
+            const rect = gameContainer.getBoundingClientRect();
+            
             this.joystick.active = true;
-            updateTouchPosition(e.touches[0]);
-        };
+            this.joystick.identifier = identifier;
+            
+            startX = clientX;
+            startY = clientY;
 
-        const handleTouchMove = (e) => {
-            if (!this.joystick.active) return;
-            updateTouchPosition(e.touches[0]);
-        };
+            // Posiciona o container exatamente onde o usuário clicou/tocou
+            container.style.left = `${startX - rect.left}px`;
+            container.style.top = `${startY - rect.top}px`;
+            container.classList.add('active');
 
-        const handleTouchEnd = () => {
-            this.joystick.active = false;
+            stick.style.transform = `translate(0px, 0px)`;
             this.joystick.x = 0;
             this.joystick.y = 0;
-            stick.style.transform = `translate(0px, 0px)`;
         };
 
-        const updateTouchPosition = (touch) => {
-            rect = base.getBoundingClientRect();
-            let centerX = rect.left + rect.width / 2;
-            let centerY = rect.top + rect.height / 2;
-            
-            let deltaX = touch.clientX - centerX;
-            let deltaY = touch.clientY - centerY;
-            
+        const handleMove = (clientX, clientY, identifier = null) => {
+            if (!this.joystick.active) return;
+            if (identifier !== null && this.joystick.identifier !== identifier) return;
+
+            let deltaX = clientX - startX;
+            let deltaY = clientY - startY;
+
             let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            
+
             if (distance > maxDistance) {
                 deltaX = (deltaX / distance) * maxDistance;
                 deltaY = (deltaY / distance) * maxDistance;
             }
 
             stick.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-            
-            // Normaliza os valores entre -1 e 1
+
             this.joystick.x = deltaX / maxDistance;
             this.joystick.y = deltaY / maxDistance;
         };
 
-        base.addEventListener('touchstart', handleTouchStart);
-        window.addEventListener('touchmove', handleTouchMove);
-        window.addEventListener('touchend', handleTouchEnd);
+        const handleEnd = (identifier = null) => {
+            if (!this.joystick.active) return;
+            if (identifier !== null && this.joystick.identifier !== identifier) return;
+
+            this.joystick.active = false;
+            this.joystick.identifier = null;
+            this.joystick.x = 0;
+            this.joystick.y = 0;
+            container.classList.remove('active');
+        };
+
+        // Touch Events (Mobile)
+        window.addEventListener('touchstart', (e) => {
+            const touch = e.changedTouches[0];
+            handleStart(touch.clientX, touch.clientY, touch.identifier);
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                if (touch.identifier === this.joystick.identifier) {
+                    handleMove(touch.clientX, touch.clientY, touch.identifier);
+                }
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                if (touch.identifier === this.joystick.identifier) {
+                    handleEnd(touch.identifier);
+                }
+            }
+        });
+
+        // Mouse Events (Desktop)
+        gameContainer.addEventListener('mousedown', (e) => {
+            handleStart(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            handleMove(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('mouseup', () => {
+            handleEnd();
+        });
     }
 
     getAxis() {
         let dx = 0;
         let dy = 0;
 
-        // Verifica Teclado
         if (this.keys['w'] || this.keys['ArrowUp']) dy -= 1;
         if (this.keys['s'] || this.keys['ArrowDown']) dy += 1;
         if (this.keys['a'] || this.keys['ArrowLeft']) dx -= 1;
         if (this.keys['d'] || this.keys['ArrowRight']) dx += 1;
 
-        // Se o teclado estiver sendo usado, ele tem prioridade
         if (dx !== 0 || dy !== 0) {
-            // Normaliza diagonal do teclado
             if (dx !== 0 && dy !== 0) {
                 dx *= 0.7071;
                 dy *= 0.7071;
@@ -107,7 +152,6 @@ export class InputHandler {
             return { dx, dy };
         }
 
-        // Caso contrário, usa o joystick virtual se estiver ativo
         if (this.joystick.active) {
             return { dx: this.joystick.x, dy: this.joystick.y };
         }
