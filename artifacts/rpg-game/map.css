@@ -1,0 +1,198 @@
+/* ================= TELA DO MAPA ================= */
+
+#view-mapa {
+    padding: 0;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.map-header {
+    background: rgba(10, 5, 15, 0.9);
+    padding: 15px;
+    border-bottom: 2px solid var(--gold-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+
+.map-header h2 {
+    color: var(--gold-light);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Container de Rolagem do Mapa (Viewport) */
+.map-viewport {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+    background-color: #0d2847; /* Cor do oceano de fundo */
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-dark) transparent;
+}
+
+.map-viewport::-webkit-scrollbar { width: 6px; height: 6px; }
+.map-viewport::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+
+/* O Mundo Massivo carregando a sua imagem real */
+.map-world {
+    width: 3000px;
+    height: 2250px;
+    position: relative;
+    background-image: url('mapa.png'); /* Carrega a imagem do mapa */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+}
+
+/* Nós/Cidades do Mapa */
+.map-node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    transition: transform 0.2s;
+}
+
+.map-node:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    z-index: 10;
+}
+
+.node-indicator {
+    width: 18px;
+    height: 18px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 3px solid #777;
+    border-radius: 50%;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.8);
+    transition: all 0.3s ease;
+}
+
+.map-node.active .node-indicator {
+    background: #00ffcc;
+    border-color: #fff;
+    box-shadow: 0 0 15px #00ffcc, 0 0 30px #00ffcc;
+}
+
+/* Cores específicas para tipos de locais */
+.map-node.type-capital .node-indicator {
+    width: 24px; height: 24px;
+    border-color: var(--gold-primary);
+}
+.map-node.type-perigo .node-indicator { border-color: #e53935; }
+.map-node.type-dungeon .node-indicator { border-color: #8e24aa; }
+
+.node-label {
+    background: rgba(0, 0, 0, 0.8);
+    color: #e0e0e0;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    border: 1px solid rgba(255,255,255,0.1);
+    white-space: nowrap;
+    text-shadow: 1px 1px 2px #000;
+}
+
+.map-node.active .node-label {
+    color: #fff;
+    border-color: #00ffcc;
+}
+
+/* Painel de Detalhes */
+.map-details-panel {
+    background: linear-gradient(180deg, #1f140a 0%, #0a0503 100%);
+    border-top: 2px solid var(--gold-dark);
+    padding: 20px;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    z-index: 10;
+    box-shadow: 0 -10px 20px rgba(0,0,0,0.8);
+}
+
+.details-empty {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.pin-icon {
+    font-size: 1.5rem;
+    color: #f44336;
+    animation: bouncePin 2s infinite ease-in-out;
+}
+
+@keyframes bouncePin {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.details-content {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.details-content.active {
+    display: flex;
+}
+
+.loc-title {
+    color: var(--gold-light);
+    font-size: 1.3rem;
+}
+
+.loc-desc {
+    color: #e0e0e0;
+    font-size: 0.85rem;
+    max-width: 90%;
+    line-height: 1.4;
+}
+
+.loc-status {
+    color: #4caf50;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-travel {
+    background: linear-gradient(180deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+    color: #000;
+    border: none;
+    font-weight: bold;
+    padding: 8px 30px;
+    border-radius: 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.6);
+    margin-top: 5px;
+    transition: transform 0.1s;
+}
+
+.btn-travel:active { transform: scale(0.95); }
