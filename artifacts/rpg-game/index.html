@@ -3,22 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG 2D - Dark Fantasy</title>
+    <title>RPG - Combate em Turnos</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
-        <canvas id="gameCanvas"></canvas>
         
-        <!-- Joystick Dinâmico / Flutuante -->
-        <div id="joystick-container">
-            <div id="joystick-base">
-                <div id="joystick-stick"></div>
-            </div>
-        </div>
+        <header id="battle-header">
+            <h2>Batalha Iniciada</h2>
+        </header>
+
+        <main id="battle-arena">
+            <!-- Painel do Jogador -->
+            <section id="player-panel" class="entity-panel">
+                <h3 id="player-name">Jogador</h3>
+                <div class="health-bar-container">
+                    <div id="player-health-bar" class="health-bar player-hp"></div>
+                </div>
+                <p id="player-hp-text">100 / 100 HP</p>
+            </section>
+
+            <div id="vs-badge">VS</div>
+
+            <!-- Painel do Inimigo -->
+            <section id="enemy-panel" class="entity-panel">
+                <h3 id="enemy-name">Goblin Sombrio</h3>
+                <div class="health-bar-container">
+                    <div id="enemy-health-bar" class="health-bar enemy-hp"></div>
+                </div>
+                <p id="enemy-hp-text">60 / 60 HP</p>
+            </section>
+        </main>
+
+        <!-- Log de Combate -->
+        <section id="combat-log-container">
+            <ul id="combat-log">
+                <li>Um Goblin Sombrio bloqueia o seu caminho!</li>
+            </ul>
+        </section>
+
+        <!-- Botões de Ação -->
+        <nav id="action-menu">
+            <button id="btn-attack" class="action-btn attack-btn">Atacar</button>
+            <button id="btn-defend" class="action-btn defend-btn">Defender</button>
+            <button id="btn-heal" class="action-btn heal-btn">Curar</button>
+        </nav>
+
     </div>
 
-    <!-- Scripts Modulares -->
+    <!-- Script Principal -->
     <script type="module" src="js/engine.js"></script>
 </body>
 </html>

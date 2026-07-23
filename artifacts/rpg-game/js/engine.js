@@ -1,81 +1,129 @@
-import { Player } from './player.js';
-import { InputHandler } from './input.js';
-import { World } from './world.js';
+import { RACES } from './races.js';
+import { Entity } from './entity.js';
 
-class GameEngine {
+class TurnBasedEngine {
     constructor() {
-        this.canvas = document.getElementById('gameCanvas');
-        this.ctx = this.canvas.getContext('2d');
+        // Inicializa as entidades
+        this.player = new Entity(`Aventureiro (${RACES.HUMANO.name})`, RACES.HUMANO.stats);
         
-        // Resolução interna da tela (viewport)
-        this.canvas.width = 800;
-        this.canvas.height = 600;
-
-        // Mundo expandido (2400 x 1800)
-        this.world = new World(2400, 1800);
+        // Status base do inimigo
+        const goblinStats = { hp: 60, attack: 12, defense: 2 };
+        this.enemy = new Entity("Goblin Sombrio", goblinStats);
         
-        // Posiciona o player no centro da praça principal do mapa expandido
-        this.player = new Player(1184, 880, 'HUMANO'); 
-        this.input = new InputHandler();
-
-        // Configuração da Câmera
-        this.camera = {
-            x: 0,
-            y: 0,
-            width: this.canvas.width,
-            height: this.canvas.height
+        // Captura os elementos de interface
+        this.ui = {
+            playerName: document.getElementById('player-name'),
+            playerHpBar: document.getElementById('player-health-bar'),
+            playerHpText: document.getElementById('player-hp-text'),
+            
+            enemyHpBar: document.getElementById('enemy-health-bar'),
+            enemyHpText: document.getElementById('enemy-hp-text'),
+            
+            log: document.getElementById('combat-log'),
+            
+            buttons: {
+                attack: document.getElementById('btn-attack'),
+                defend: document.getElementById('btn-defend'),
+                heal: document.getElementById('btn-heal')
+            }
         };
 
-        this._bindLoop = this._loop.bind(this);
+        this.ui.playerName.textContent = this.player.name;
+
+        this.bindEvents();
+        this.updateUI();
     }
 
-    start() {
-        requestAnimationFrame(this._bindLoop);
+    bindEvents() {
+        this.ui.buttons.attack.addEventListener('click', () => this.processPlayerTurn('ATTACK'));
+        this.ui.buttons.defend.addEventListener('click', () => this.processPlayerTurn('DEFEND'));
+        this.ui.buttons.heal.addEventListener('click', () => this.processPlayerTurn('HEAL'));
     }
 
-    _update() {
-        const { dx, dy } = this.input.getAxis();
-        this.player.move(dx, dy, this.world.width, this.world.height);
+    logMessage(message, color = "#c5c6c7") {
+        const li = document.createElement('li');
+        li.textContent = message;
+        li.style.color = color;
+        this.ui.log.prepend(li);
+    }
 
-        // Atualiza a posição da câmera para centralizar no player
-        this.camera.x = this.player.x + (this.player.width / 2) - (this.camera.width / 2);
-        this.camera.y = this.player.y + (this.player.height / 2) - (this.camera.height / 2);
+    updateUI() {
+        // Atualiza barras de vida
+        const playerHpPercent = (this.player.hp / this.player.maxHp) * 100;
+        this.ui.playerHpBar.style.width = `${playerHpPercent}%`;
+        this.ui.playerHpText.textContent = `${this.player.hp} / ${this.player.maxHp} HP`;
 
-        // Trava a câmera nos limites do mapa expandido
-        if (this.camera.x < 0) this.camera.x = 0;
-        if (this.camera.y < 0) this.camera.y = 0;
-        if (this.camera.x > this.world.width - this.camera.width) {
-            this.camera.x = this.world.width - this.camera.width;
+        const enemyHpPercent = (this.enemy.hp / this.enemy.maxHp) * 100;
+        this.ui.enemyHpBar.style.width = `${enemyHpPercent}%`;
+        this.ui.enemyHpText.textContent = `${this.enemy.hp} / ${this.enemy.maxHp} HP`;
+    }
+
+    toggleButtons(state) {
+        this.ui.buttons.attack.disabled = !state;
+        this.ui.buttons.defend.disabled = !state;
+        this.ui.buttons.heal.disabled = !state;
+    }
+
+    processPlayerTurn(action) {
+        // Reseta as posturas de defesa no início do turno
+        this.player.isDefending = false;
+        this.enemy.isDefending = false;
+
+        this.logMessage(`--- Seu Turno ---`, '#66fcf1');
+
+        if (action === 'ATTACK') {
+            const damage = this.enemy.takeDamage(this.player.attack);
+            this.logMessage(`Você atacou com precisão, causando ${damage} de dano!`);
+        } else if (action === 'DEFEND') {
+            this.player.isDefending = true;
+            this.logMessage(`Você ergue o escudo e se prepara para o impacto.`);
+        } else if (action === 'HEAL') {
+            const healAmount = 25;
+            this.player.heal(healAmount);
+            this.logMessage(`Você consumiu uma poção e recuperou ${healAmount} de HP.`, '#2ecc71');
         }
-        if (this.camera.y > this.world.height - this.camera.height) {
-            this.camera.y = this.world.height - this.camera.height;
+
+        this.updateUI();
+
+        // Checa se o inimigo morreu
+        if (this.enemy.hp <= 0) {
+            this.logMessage(`Vitória! O ${this.enemy.name} foi derrotado.`, '#45a29e');
+            this.toggleButtons(false);
+            return;
         }
+
+        // Passa o turno para o inimigo
+        this.toggleButtons(false);
+        setTimeout(() => this.processEnemyTurn(), 1200);
     }
 
-    _render() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    processEnemyTurn() {
+        this.logMessage(`--- Turno do Inimigo ---`, '#c72c41');
 
-        this.ctx.save();
-        // Aplica o deslocamento da câmera
-        this.ctx.translate(-this.camera.x, -this.camera.y);
+        // IA Simples: 80% de chance de atacar, 20% de se defender
+        const enemyAction = Math.random() > 0.2 ? 'ATTACK' : 'DEFEND';
+        
+        if (enemyAction === 'ATTACK') {
+            const damage = this.player.takeDamage(this.enemy.attack);
+            this.logMessage(`O ${this.enemy.name} desferiu um golpe brutal, causando ${damage} de dano!`);
+        } else {
+            this.enemy.isDefending = true;
+            this.logMessage(`O ${this.enemy.name} recua e adota uma postura defensiva.`);
+        }
 
-        // Desenha o mundo expandido
-        this.world.draw(this.ctx);
+        this.updateUI();
 
-        // Desenha o player aprimorado
-        this.player.draw(this.ctx);
-
-        this.ctx.restore();
-    }
-
-    _loop(timestamp) {
-        this._update();
-        this._render();
-        requestAnimationFrame(this._bindLoop);
+        // Checa se o jogador morreu
+        if (this.player.hp <= 0) {
+            this.logMessage(`Você foi derrotado... O mundo mergulha nas trevas.`, '#c72c41');
+        } else {
+            // Devolve o turno ao jogador
+            this.toggleButtons(true);
+        }
     }
 }
 
+// Inicializa a engine quando o DOM carregar
 window.addEventListener('DOMContentLoaded', () => {
-    const game = new GameEngine();
-    game.start();
+    new TurnBasedEngine();
 });
